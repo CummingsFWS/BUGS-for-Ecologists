@@ -1,0 +1,87 @@
+---
+title: "5 Running NIMBLE from R"
+output: html_notebook
+---
+
+# Testing NIMBLE in R
+First we define the model code, its constants, data, and initial values for MCMC.
+```{r}
+# loac library
+library(nimble)
+
+# Model code
+pumpCode <- nimbleCode({ 
+  for (i in 1:N){
+      theta[i] ~ dgamma(alpha,beta)
+      lambda[i] <- theta[i]*t[i]
+      x[i] ~ dpois(lambda[i])
+  }
+  alpha ~ dexp(1.0)
+  beta ~ dgamma(0.1,1.0)
+})
+
+# create constants, number of pumps (N = 10), and duration of operation for each pump (t)
+pumpConsts <- list(N = 10,
+                   t = c(94.3, 15.7, 62.9, 126, 5.24,
+                       31.4, 1.05, 1.05, 2.1, 10.5))
+
+# Data: number of failures over pump duration
+pumpData <- list(x = c(5, 1, 5, 14, 3, 19, 1, 1, 4, 22))
+
+# model initialization values
+pumpInits <- list(alpha = 1, beta = 1,
+                  theta = rep(0.1, pumpConsts$N))
+```
+Here x[i] is the number of failures recorded during a time duration of length t[i] for the i*th* pump. theta[i] is a failure rate, and the goal is estimate parameters alpha and beta. 
+
+Now lets create the model and look at some of its nodes.
+```{r}
+pump <- nimbleModel(code = pumpCode, name = "pump", constants = pumpConsts,
+                    data = pumpData, inits = pumpInits)
+
+pump$getNodeNames()
+```
+Thanks to the plotting capabilities of the igraph package that NIMBLE uses to represent the directed acyclic graph, we can plot the model.
+```{r}
+pump$plotGraph()
+```
+
+# Compiling the model
+Next we compile the model, which means generating C++ code, compiling that code, and loading it back into R with an object that can be used just like the uncompiled model. The values in the compiled model will be initialized from those of the original model in R, but the original and compiled models are distinct objects so any subsequent changes in one will not be reflected in the other.
+```{r}
+Cpump <- compileNimble(pump)
+
+```
+# Invoke MCMC
+The most direct approach to invoking NIMBLE’s MCMC engine is using the nimbleMCMC function. This function would generally take the code, data, constants, and initial values as input, but it can also accept the (compiled or uncompiled) model object as an argument. It provides a variety of options for executing and controlling multiple chains of NIMBLE’s default MCMC algorithm, and returning posterior samples, posterior summary statistics, and/or WAIC values.
+
+For example, to execute two MCMC chains of 10,000 samples each, and return samples, summary statistics, and WAIC values:
+```{r}
+mcmc.out <- nimbleMCMC(code = pumpCode, constants = pumpConsts,
+                       data = pumpData, inits = pumpInits,
+                       nchains = 2, niter = 10000,
+                       summary = TRUE, WAIC = TRUE,
+                       monitors = c('alpha','beta','theta'))
+```
+                      
+
+
+# Chapter 5
+
+```{r}
+### 5.2. Data generation
+# Generate two samples of body mass measurements of male peregrines
+y10 <- rnorm(n = 10, mean = 600, sd = 30) # Sample of 10 birds
+y1000 <- rnorm(n = 1000, mean = 600, sd = 30) # Sample of 1000 birds
+
+# Plot data
+xlim = c(450, 750)
+par(mfrow = c(2,1))
+hist(y10, col = 'grey ', xlim = xlim, main = 'Body mass (g) of 10 male peregrines')
+hist(y1000, col = 'grey', xlim = xlim, main = ' Body mass (g) of 1000 male peregrines')
+```
+```{r}
+### 5.3. Analysis using R
+summary(lm(y1000 ~ 1))
+```
+
