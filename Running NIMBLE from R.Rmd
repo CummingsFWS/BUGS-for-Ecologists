@@ -1,12 +1,12 @@
 ---
-title: "5 Running NIMBLE from R"
+title: "Running NIMBLE from R"
 output: html_notebook
 ---
 
 # Testing NIMBLE in R
 First we define the model code, its constants, data, and initial values for MCMC.
 ```{r}
-# loac library
+# load library
 library(nimble)
 
 # Model code
@@ -63,25 +63,3 @@ mcmc.out <- nimbleMCMC(code = pumpCode, constants = pumpConsts,
                        summary = TRUE, WAIC = TRUE,
                        monitors = c('alpha','beta','theta'))
 ```
-                      
-
-
-# Chapter 5
-
-```{r}
-### 5.2. Data generation
-# Generate two samples of body mass measurements of male peregrines
-y10 <- rnorm(n = 10, mean = 600, sd = 30) # Sample of 10 birds
-y1000 <- rnorm(n = 1000, mean = 600, sd = 30) # Sample of 1000 birds
-
-# Plot data
-xlim = c(450, 750)
-par(mfrow = c(2,1))
-hist(y10, col = 'grey ', xlim = xlim, main = 'Body mass (g) of 10 male peregrines')
-hist(y1000, col = 'grey', xlim = xlim, main = ' Body mass (g) of 1000 male peregrines')
-```
-```{r}
-### 5.3. Analysis using R
-summary(lm(y1000 ~ 1))
-```
-
