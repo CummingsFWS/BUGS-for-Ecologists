@@ -102,12 +102,13 @@ bmassCode <- nimbleCode({
  precision <- 1 / population.variance	# Precision = 1/variance
  population.variance <- population.sd * population.sd
  population.sd ~ dunif(0,100)
+ population.cv <- population.sd/population.mean
 })
 # Model parameters to report
-bmassMonitors <- c("population.mean", "population.sd", "population.variance")
+bmassMonitors <- c("population.mean", "population.sd", "population.variance", "population.cv")
 
 # model initialization values
-bmassInits <- list(population.mean = rnorm(1,600), population.sd = runif(1, 1, 30))
+bmassInits <- list(population.mean = runif(1,0,5000), population.sd = runif(1, 1, 30))
 
 # model constants
 bmassConsts <- list(nobs = length(y1000))
@@ -126,8 +127,8 @@ bmass.out <- nimbleMCMC(code = bmassCode, constants = bmassConsts,
                        summary = TRUE, WAIC = TRUE,
                        monitors = bmassMonitors,
                        samplesAsCodaMCMC = TRUE)
-# Extract samples from output
-samples <- as.matrix(bmass.out$samples)
+# Extract samples from output as mcmc output using Coda
+samples <- as.mcmc.list(bmass.out$samples)
 # produce canned MCMC plots
 mcmcplot(samples)
 ```
