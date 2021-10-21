@@ -1,0 +1,76 @@
+---
+title: "6 Linear Models"
+output: html_notebook
+---
+
+# Ch. 6 - Key Components of (Generalized) Linear Models: Statistical Distributions and the Linear Predictor
+
+```{r, echo=FALSE}
+# load libraries
+library(nimble) # package for conducting MCMC analysis
+library(coda) # package for processing MCMC output
+library(mcmcplots) # package for plotting MCMC output
+```
+<!-- Generate and plot body mass data -->
+<!-- ```{r} -->
+<!-- ### 5.2. Data generation -->
+<!-- # Generate two samples of body mass measurements of male peregrines -->
+<!-- y10 <- rnorm(n = 10, mean = 600, sd = 30) # Sample of 10 birds -->
+<!-- y1000 <- rnorm(n = 1000, mean = 600, sd = 30) # Sample of 1000 birds -->
+
+<!-- # Plot data -->
+<!-- xlim = c(450, 750) -->
+<!-- par(mfrow = c(2,1)) -->
+<!-- hist(y10, col = 'grey ', xlim = xlim, main = 'Body mass (g) of 10 male peregrines') -->
+<!-- hist(y1000, col = 'grey', xlim = xlim, main = ' Body mass (g) of 1000 male peregrines') -->
+<!-- ``` -->
+<!-- Classic linear regression analysis -->
+<!-- ```{r} -->
+<!-- ### 5.3. Analysis using R -->
+<!-- summary(lm(y1000 ~ 1)) -->
+<!-- ``` -->
+
+<!-- Analysis Using NIMBLE -->
+<!-- ```{r} -->
+<!-- # Model code -->
+<!-- bmassCode <- nimbleCode({  -->
+<!--   # likelihood -->
+<!--  for(i in 1:nobs){ -->
+<!--     mass[i] ~ dnorm(population.mean, precision) -->
+<!--  } -->
+<!--   # priors -->
+<!--  population.mean ~ dunif(0,5000)		# Normal parameterized by precision -->
+<!--  precision <- 1 / population.variance	# Precision = 1/variance -->
+<!--  population.variance <- population.sd * population.sd -->
+<!--  population.sd ~ dunif(0,100) -->
+<!-- }) -->
+<!-- # Model parameters to report -->
+<!-- bmassMonitors <- c("population.mean", "population.sd", "population.variance") -->
+
+<!-- # model initialization values -->
+<!-- bmassInits <- list(population.mean = rnorm(1,600), population.sd = runif(1, 1, 30)) -->
+
+<!-- # model constants -->
+<!-- bmassConsts <- list(nobs = length(y1000)) -->
+
+<!-- # data -->
+<!-- bmassData <- list(mass = y1000) -->
+
+<!-- # Create & Compile the model -->
+<!-- bmass <- nimbleModel(code = bmassCode, name = "bmass", constants = bmassConsts, data = bmassData, inits = bmassInits) -->
+<!-- Cbmass <- compileNimble(bmass) -->
+
+<!-- # Run model -->
+<!-- bmass.out <- nimbleMCMC(code = bmassCode, constants = bmassConsts, -->
+<!--                        data = bmassData, inits = bmassInits, -->
+<!--                        nchains = 2, niter = 10000, -->
+<!--                        summary = TRUE, WAIC = TRUE, -->
+<!--                        monitors = bmassMonitors, -->
+<!--                        samplesAsCodaMCMC = TRUE) -->
+<!-- # Extract samples from output -->
+<!-- samples <- as.matrix(bmass.out$samples) -->
+<!-- # produce canned MCMC plots -->
+<!-- mcmcplot(samples) -->
+<!-- traplot(samples) -->
+<!-- denplot(samples) -->
+```
