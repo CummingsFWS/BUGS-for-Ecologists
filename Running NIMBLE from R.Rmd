@@ -108,7 +108,7 @@ bmassCode <- nimbleCode({
 bmassMonitors <- c("population.mean", "population.sd", "population.variance", "population.cv")
 
 # model initialization values
-bmassInits <- list(population.mean = runif(1,0,5000), population.sd = runif(1, 1, 30))
+bmassInits <- list(population.mean = runif(1,100,1000), population.sd = runif(1, 1, 30))
 
 # model constants
 bmassConsts <- list(nobs = length(y1000))
@@ -131,4 +131,7 @@ bmass.out <- nimbleMCMC(code = bmassCode, constants = bmassConsts,
 samples <- as.mcmc.list(bmass.out$samples)
 # produce canned MCMC plots
 mcmcplot(samples)
+traplot(samples)
+denplot(samples)
+caterplot(samples, collapse=FALSE, denstrip=TRUE)
 ```
